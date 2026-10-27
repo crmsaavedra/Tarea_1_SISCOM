@@ -4,6 +4,10 @@ Aplicación local de escritorio para organizar las grabaciones de una transmisi�
 
 **Guía para abrir y usar el ejecutable:** [GUIA_USO_EXE.md](GUIA_USO_EXE.md). Descarga `SisCom-Morse.exe` desde la sección **Releases** del repositorio.
 
+## Informe de la tarea
+
+El informe editable en LaTeX y su PDF compilado están en [`informe_latex/`](informe_latex/). El documento explica el transmisor Arduino, el receptor Tkinter, la calibración, la decodificación Morse, la CER y el análisis FFT/PSD. Incluye espacios rotulados para las figuras y recuadros separados para escribir sus interpretaciones. Antes de entregarlo, hay que completar los campos naranjos con mediciones reales e insertar las figuras solicitadas; el clip preliminar HOLA no reemplaza las grabaciones SIS COM de las cuatro distancias.
+
 ## Ejecutar la aplicación
 
 La versión entregable es un solo archivo Windows: `dist\SisCom Morse.exe`. Haz doble clic y se abrirá una ventana Tkinter; no inicia un navegador, servidor web ni necesita Internet para procesar videos.

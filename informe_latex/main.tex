@@ -1,0 +1,533 @@
+\documentclass[11pt,a4paper]{article}
+
+% Plantilla inspirada en el informe de la Universidad de Concepción indicado por el grupo.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=2.5cm,headheight=15pt]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{xurl}
+
+\definecolor{UdeCblue}{RGB}{30,67,125}
+\definecolor{Teal}{RGB}{0,125,125}
+\definecolor{SoftGray}{RGB}{246,247,250}
+\definecolor{LineGray}{RGB}{190,196,205}
+\definecolor{Pending}{RGB}{170,82,0}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=UdeCblue,
+    urlcolor=Teal,
+    citecolor=UdeCblue,
+    pdftitle={Tarea 1: Transmisión y reconstrucción de mensajes Morse con luz},
+    pdfauthor={Cristian Saavedra y Marcos Campos}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.15em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.2em,topsep=0.25em}
+\renewcommand{\arraystretch}{1.22}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\Completar}[1]{\textcolor{Pending}{\textbf{[Completar: #1]}}}
+\newcommand{\DatoPendiente}{\textcolor{Pending}{\rule{1.4cm}{0.4pt}}}
+
+\newcommand{\EspacioInterpretacion}[1]{%
+    \par\smallskip
+    \noindent\textbf{\textcolor{Teal}{Interpretación que debe redactar el grupo:}} #1\par
+    \smallskip
+    \noindent\fbox{%
+        \begin{minipage}[t][1.45cm][t]{0.95\linewidth}
+        \textcolor{LineGray}{Escriba aquí la interpretación con referencia a los valores y rasgos visibles en la figura. No describa únicamente lo que se ve: explique qué significa para el enlace.}
+        \end{minipage}}
+    \par\medskip
+}
+
+\newcommand{\EspacioFigura}[6]{%
+    \begin{figure}[H]
+        \centering
+        \fcolorbox{UdeCblue!60}{SoftGray}{%
+            \begin{minipage}[c][#5][c]{0.88\linewidth}
+                \centering
+                {\large\bfseries Espacio para la figura #1}\\[0.5em]
+                #2\\[0.5em]
+                {\small Archivo sugerido: \url{#3}}
+            \end{minipage}}
+        \caption{#4}
+        \label{fig:#1}
+    \end{figure}
+    \EspacioInterpretacion{#6}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Sistemas de Comunicaciones \textperiodcentered\ Tarea 1}
+\fancyhead[R]{Morse óptico}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\begin{document}
+
+% Portada basada en la distribución del informe de referencia.
+\thispagestyle{empty}
+\begin{center}
+    \vspace*{0.4cm}
+    {\textbf{\LARGE Universidad de Concepción}}\\[0.35cm]
+    {\textbf{\large Facultad de Ingeniería}}\\[0.25cm]
+    {\textbf{\large Departamento de Ingeniería Eléctrica}}\\[0.4cm]
+    \includegraphics[width=0.36\textwidth]{images/udec_.jpg}\\[0.55cm]
+    {\textbf{\huge Tarea N.\textsuperscript{o} 1}}\\[0.25cm]
+    {\textbf{\LARGE Transmisión y reconstrucción de}\\[-0.05cm]
+    \textbf{\LARGE mensajes Morse con luz}}\\[0.65cm]
+    {\large Asignatura: Sistemas de Comunicaciones 2026}\\[0.2cm]
+    {\large Profesor: Dr. Fernando Castillo Rivera}\\[0.7cm]
+    {\large\textbf{Integrantes}}\\[0.25cm]
+    {\large Cristian Saavedra}\\
+    {\large Aporte individual: \Completar{porcentaje entre 0 y 100\%}}\\[0.2cm]
+    {\large Marcos Campos}\\
+    {\large Aporte individual: \Completar{porcentaje entre 0 y 100\%}}\\[0.7cm]
+    {\large Fecha: \today}\\[0.3cm]
+    {\small Borrador con campos editables para completar con las mediciones reales del grupo}
+\end{center}
+\clearpage
+
+\pagenumbering{roman}
+\section*{Antes de entregar}
+\addcontentsline{toc}{section}{Antes de entregar}
+Este documento explica el sistema y organiza las respuestas según los dos problemas de la pauta. Los recuadros naranjos indican datos, decisiones o resultados que el grupo debe completar. Los recuadros grises indican el lugar de una figura; cada figura va seguida por un espacio para interpretarla.
+
+\textbf{No se deben inventar valores ni completar el texto recibido usando la frase esperada.} La pauta exige transmitir \textbf{SIS COM}, calibrar el receptor a \textbf{0,5 m} y procesar cuatro grabaciones: \textbf{0,5; 1,0; 2,0 y 3,0 m}. El clip de prueba disponible contiene \textbf{HOLA}; puede servir para familiarizarse con la sección Prueba rápida, pero no sustituye esas mediciones.
+
+Antes de generar el PDF de entrega, reemplace todos los marcadores, inserte las figuras reales, escriba las interpretaciones, verifique que la tabla CER conserve el espacio y retire esta página de instrucciones si ya no resulta necesaria.
+
+\section*{Resumen}
+\addcontentsline{toc}{section}{Resumen}
+Se presenta un sistema de transmisión óptica que codifica el texto \textit{SIS COM} en Morse, controla una fuente luminosa mediante \textbf{\Completar{indicar control manual o automático}} y reconstruye el mensaje a partir de una grabación de cámara. El receptor extrae la intensidad media de una región de interés (ROI), umbraliza la señal y clasifica las duraciones de los pulsos y pausas con una unidad temporal \(T\). El desempeño se cuantifica mediante la tasa de error de caracteres (CER) y se analiza en frecuencia con la transformada rápida de Fourier (FFT), la densidad espectral de potencia (PSD) y el ancho de banda que contiene el 95\,\% de la potencia (\(B_{95}\)).
+
+La duración \(T\), frecuencia de muestreo, umbral, textos recibidos y errores se completarán una vez obtenidos los registros experimentales. El sistema permite revisar un video de ensayo con HOLA, pero esa prueba es independiente de la evaluación de la frase SIS COM.
+
+\textbf{Palabras clave:} Morse, OOK, transmisión óptica, video, ROI, CER, FFT, PSD.
+
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\pagenumbering{arabic}
+
+\section{Introducción}
+La tarea aborda el envío de una frase mediante destellos de luz y su reconstrucción automática desde video. La fuente transmite puntos, rayas y separaciones Morse; el canal óptico modifica la intensidad que llega a la cámara; el programa receptor mide esa intensidad y decide qué símbolos se enviaron. La evaluación observa tanto la lectura correcta del texto como la variación de su calidad al aumentar la distancia.
+
+El encendido y apagado de la fuente corresponde a modulación \textit{on-off keying} (OOK): un intervalo luminoso representa el nivel lógico 1 y uno oscuro, el nivel lógico 0. El receptor no debe conocer la frase esperada al decodificarla. La frase original se utiliza después para comparar el resultado y calcular CER.
+
+El proyecto implementa un transmisor Arduino para los LED conectados a D2--D9 y una aplicación local de escritorio en Python/Tkinter. La interfaz organiza la prueba de un video, la calibración, la decodificación, el análisis y la exportación. Los datos experimentales y las decisiones que dependan del montaje se deben completar con evidencia del grupo.
+
+\subsection{Objetivos}
+\begin{enumerate}
+    \item Transmitir \textit{SIS COM} en código Morse usando una fuente luminosa y reconstruirlo a partir de video.
+    \item Obtener y analizar la intensidad media en el tiempo y en frecuencia.
+    \item Comparar la CER entre 0,5; 1,0; 2,0 y 3,0 m bajo condiciones controladas.
+    \item Documentar el montaje, el programa, las mediciones, sus limitaciones y una mejora justificada.
+\end{enumerate}
+
+\subsection{Organización del informe}
+Las secciones 2 y 3 presentan la codificación, la arquitectura y el método de procesamiento. La sección 4 describe el montaje y el procedimiento experimental. La sección 5 sigue los ítems evaluados de los problemas 1 y 2. Las secciones finales reservan la discusión, las conclusiones, la reproducibilidad y la declaración de apoyo de inteligencia artificial.
+
+\section{Fundamentos y método de decodificación}
+\subsection{Código Morse y temporización}
+La letra se representa mediante puntos y rayas. Sea \(T\) la duración de referencia de un punto. La raya dura \(3T\); las pausas internas de una letra duran \(T\), las pausas entre letras \(3T\) y las pausas entre palabras \(7T\). Las pausas se miden completas: la separación entre letras es \(3T\), no \(T+3T\) \cite{Pauta,UIT}.
+
+\begin{table}[H]
+\centering
+\caption{Relación de referencia entre el patrón Morse y el estado de la luz.}
+\label{tab:tiempos}
+\begin{tabularx}{\textwidth}{l l l Y}
+\toprule
+Elemento & Luz & Duración & Función en el receptor\\
+\midrule
+Punto & Encendida & \(T\) & Símbolo corto\\
+Raya & Encendida & \(3T\) & Símbolo largo\\
+Pausa entre símbolos & Apagada & \(T\) & Mantiene la letra en curso\\
+Pausa entre letras & Apagada & \(3T\) & Finaliza una letra\\
+Pausa entre palabras & Apagada & \(7T\) & Finaliza la letra e inserta un espacio\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La secuencia prevista para la frase es:
+
+\begin{center}
+\textbf{SIS COM}\qquad\(\longrightarrow\qquad\) \texttt{... .. ... / -.-. --- --}
+\end{center}
+
+\begin{table}[H]
+\centering
+\caption{Patrón Morse de la frase esperada.}
+\label{tab:morse}
+\begin{tabular}{c c c c c c c c}
+\toprule
+Carácter & S & I & S & \textit{espacio} & C & O & M\\
+\midrule
+Morse & \texttt{...} & \texttt{..} & \texttt{...} & \(7T\) & \texttt{-.-.} & \texttt{---} & \texttt{--}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El sketch Arduino incluido usa \(T=200\) ms como valor predeterminado (\texttt{MORSE\_UNIT\_MS}). Este valor no debe declararse como duración experimental hasta confirmar que se usó sin cambios y que el grupo lo registró. Si se eligió otro ritmo o se accionó la fuente manualmente, se informa el valor medido o estimado durante la calibración.
+
+\subsection{De los cuadros a la intensidad}
+Para cada cuadro \(n\), la aplicación toma la ROI seleccionada, convierte los píxeles a escala de grises y calcula su promedio:
+\begin{equation}
+I[n]=\frac{1}{N_{\mathrm{ROI}}}\sum_{(x,y)\in\mathrm{ROI}}G_n(x,y),
+\label{eq:intensidad}
+\end{equation}
+donde \(G_n(x,y)\) es la intensidad digital en escala de grises y \(N_{\mathrm{ROI}}\) es el número de píxeles incluidos. Los valores digitales están en el rango nominal 0--255; no son potencia óptica ni watts. Si el video informa una frecuencia de \(f_s\) cuadros por segundo, el tiempo asociado al cuadro \(n\) es
+\begin{equation}
+t[n]=\frac{n}{f_s},\qquad f_s=\text{FPS informado por el archivo de video}.
+\end{equation}
+La ROI debe cubrir la fuente luminosa sin incluir innecesariamente reflejos, pantallas u otras zonas que cambien de brillo.
+
+\subsection{Umbral, duraciones y decisiones}
+El receptor binariza la intensidad con un umbral \(\theta\):
+\begin{equation}
+b[n]=
+\begin{cases}
+1,& I[n]\geq\theta,\\
+0,& I[n]<\theta.
+\end{cases}
+\end{equation}
+Las rachas consecutivas con el mismo estado se convierten en intervalos de luz encendida o apagada. Si una racha abarca \(N\) cuadros, su duración es \(d=N/f_s\). La calibración define \(\theta\), \(T\), ROI y una tolerancia temporal antes de evaluar las distancias. Un pulso se clasifica como punto o raya comparando su duración con \(T\) y \(3T\); una pausa se clasifica como separación de símbolo, letra o palabra comparándola con \(T\), \(3T\) y \(7T\).
+
+Las decisiones de duración se traducen a una secuencia de puntos y rayas y luego a letras mediante una tabla Morse. Los patrones o intervalos que no satisfacen la regla se conservan como \texttt{?} o como decisión inválida. La frase de referencia no forma parte del algoritmo de decodificación: se aplica después, al contar los errores.
+
+\subsection{Tasa de error de caracteres}
+La distancia de edición de Levenshtein entrega el mínimo número de sustituciones \(S\), eliminaciones \(D\) e inserciones \(I\) necesario para transformar el texto recibido en el original. La tarea define:
+\begin{equation}
+\mathrm{CER}=\frac{S+D+I}{7},
+\label{eq:cer}
+\end{equation}
+porque \textit{SIS COM} tiene siete caracteres si se conserva el espacio. La comparación se hace en mayúsculas, preserva los espacios y cuenta \texttt{?} como error. Una recepción exacta tiene CER \(=0\); un video completo que produce texto vacío tiene CER \(=1\). Solo se registra \textit{sin adquisición válida} cuando la grabación está incompleta por una falla de adquisición; en ese caso no se calcula CER \cite{Pauta,CER}.
+
+\subsection{Análisis espectral}
+Antes del análisis espectral se resta el promedio:
+\begin{equation}
+x[n]=I[n]-\overline{I}.
+\end{equation}
+La aplicación calcula una FFT unilateral con frecuencias desde 0 hasta \(f_s/2\). La PSD se estima mediante el método de Welch con ventana Hann. \(B_{95}\) es la frecuencia a la cual la integral acumulada de la PSD alcanza el 95\,\% del área total entre 0 Hz y la frecuencia de Nyquist:
+\begin{equation}
+\int_{0}^{B_{95}} P_{xx}(f)\,df
+=
+0.95\int_{0}^{f_s/2}P_{xx}(f)\,df.
+\label{eq:b95}
+\end{equation}
+\(B_{95}\) resume la extensión espectral de la señal registrada; no es directamente una velocidad de transmisión ni una medida de calidad por sí sola.
+
+\section{Sistema desarrollado}
+\subsection{Diagrama funcional}
+La cadena que se debe documentar es: texto esperado \(\rightarrow\) codificador Morse \(\rightarrow\) control de fuente luminosa \(\rightarrow\) canal óptico \(\rightarrow\) cámara \(\rightarrow\) extracción de intensidad de la ROI \(\rightarrow\) umbral y medición temporal \(\rightarrow\) decodificador Morse \(\rightarrow\) texto recibido. La comparación con el texto esperado se realiza al final, únicamente para evaluar CER.
+
+\EspacioFigura{1-1-diagrama}{Insertar un diagrama de bloques propio. Identificar mensaje, codificador, fuente, canal, cámara, ROI, decodificador y comparación CER.}{diagrama_bloques.png}{Diagrama de bloques del transmisor, canal óptico, cámara y receptor}{4.4cm}{Explique el recorrido de la información y la función de cada bloque; señale dónde se realiza la comparación con SIS COM.}
+
+\subsection{Transmisor Arduino}
+El programa \url{arduino_morse_leds.ino} inicializa D2, D3, D4, D5, D6, D7, D8 y D9 como salidas. Los ocho LED emiten el mismo patrón sincronizado. Cada LED requiere su propia resistencia en serie de 220--330 \(\Omega\); el cátodo se conecta a GND. La resistencia limita la corriente y protege el LED y la salida del microcontrolador.
+
+El sketch recibe una línea por el Monitor Serie a 9600 baudios, convierte letras minúsculas a mayúsculas, busca la equivalencia Morse y acciona todos los LED. Los espacios entre letras y palabras se generan con las pausas de \(3T\) y \(7T\). El firmware admite A--Z, 0--9 y espacios; la línea de entrada admite hasta 95 caracteres. La emisión no es en paralelo por carácter: los puntos, rayas y separaciones se ejecutan sucesivamente en el tiempo.
+
+\textbf{Configuración que el grupo debe confirmar:} \Completar{placa usada, pinout verificado, control manual o Arduino, valor real de T y si se modificó el firmware}. No se debe presentar el sketch como transmisor usado si el montaje real fue accionado manualmente.
+
+\subsection{Receptor Python/Tkinter}
+El receptor se entrega como aplicación local de escritorio Tkinter. Incluye las secciones Proyecto, Prueba rápida, Calibración, Decodificación, Análisis y Exportación. La vista de video permite seleccionar un cuadro y revisar o ajustar la ROI; el panel de resultados presenta texto, señal temporal y análisis espectral.
+
+El flujo de procesamiento del proyecto completo es:
+\begin{enumerate}
+    \item Abrir los videos originales y leer FPS, número de cuadros y resolución.
+    \item Seleccionar una ROI sobre la fuente en cada registro.
+    \item Calcular la media de intensidad digital de cada cuadro según la ecuación \eqref{eq:intensidad}.
+    \item Calibrar una vez a 0,5 m el umbral, \(T\), la tolerancia y la ROI.
+    \item Aplicar la misma regla de decodificación a cada grabación SIS COM.
+    \item Guardar el texto recibido y las decisiones; comparar contra SIS COM y calcular \(S,D,I,\mathrm{CER}\).
+    \item Calcular FFT, PSD, \(B_{95}\), tabla por distancia y gráficos para el informe.
+\end{enumerate}
+
+La aplicación también ofrece una prueba rápida independiente para un video con HOLA. Esta prueba estima una ROI mediante la variación temporal, separa niveles de luz con un umbral automático y estima \(T\) desde los pulsos observados. Es útil para revisar encuadre y contraste, pero no reemplaza la calibración documentada ni el conjunto SIS COM solicitado por la pauta. La aplicación procesa los archivos en el equipo; no los envía a un servicio web.
+
+\subsection{Reproducibilidad}
+El código, el firmware y las instrucciones de ejecución se encuentran en el repositorio \href{https://github.com/crmsaavedra/Tarea_1_SISCOM}{Tarea\_1\_SISCOM}. La versión ejecutable de Windows se descarga desde \href{https://github.com/crmsaavedra/Tarea_1_SISCOM/releases/tag/v1.0.0}{Releases, v1.0.0}. En la carpeta de la aplicación, el README y la guía de uso explican cómo abrir el EXE y ejecutar los flujos. El grupo debe adjuntar el código, los videos, el patrón transmitido, los textos recibidos, una tabla de resultados y un README que permita repetir el procesamiento.
+
+\section{Montaje y procedimiento experimental}
+\subsection{Materiales y condiciones}
+Complete la tabla antes de interpretar los resultados. Las distancias se miden desde la fuente luminosa hasta la cámara. Durante las cuatro grabaciones, cambie solo la distancia y mantenga fijos el brillo, la iluminación, la cámara, el ritmo de referencia y el método de procesamiento. Fije el enfoque y la exposición si el equipo lo permite.
+
+\begin{table}[H]
+\centering
+\caption{Montaje y parámetros experimentales que deben registrarse.}
+\label{tab:setup}
+\begin{tabularx}{\textwidth}{p{0.31\textwidth}Y}
+\toprule
+Parámetro & Registro del grupo\\
+\midrule
+Fuente luminosa y control & \Completar{tipo de fuente y control manual/automático}\\
+Microcontrolador y salidas & \Completar{placa; confirmar D2--D9 si se usaron}\\
+Cámara y resolución & \Completar{modelo, resolución y modo de captura}\\
+Frecuencia de cuadros \(f_s\) & \Completar{FPS registrado en los archivos}\\
+Duración de referencia \(T\) & \Completar{segundos o milisegundos y método de medida}\\
+Brillo y alimentación & \Completar{ajustes y fuente eléctrica}\\
+Iluminación ambiental & \Completar{condición reproducible}\\
+Soportes y geometría & \Completar{fijación de fuente y cámara}\\
+Software y versión & \Completar{versión del receptor / commit o release}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\EspacioFigura{1-1-montaje}{Insertar una fotografía real que muestre fuente, cámara, soportes y la forma en que se controla la emisión. Evitar imágenes ilustrativas que no correspondan al montaje usado.}{montaje.jpg}{Fotografía del montaje experimental}{5.0cm}{Describa cómo se mantiene fija la fuente y la cámara, cómo se controla la luz y cómo se midió la distancia.}
+
+\subsection{Preparación y captura}
+Se debe grabar un clip breve de calibración que muestre luz encendida y apagada, puntos, rayas y pausas. Luego se reutiliza la grabación de SIS COM a 0,5 m del problema 1 y se obtienen tres grabaciones adicionales, una a cada distancia restante. La fuente y la cámara deben permanecer fijas durante cada clip. Se deja la fuente apagada antes y después del mensaje para facilitar la delimitación temporal.
+
+\begin{table}[H]
+\centering
+\caption{Registro de los videos que se entregarán.}
+\label{tab:videos}
+\begin{tabularx}{\textwidth}{l Y l l}
+\toprule
+Registro & Nombre del archivo & Distancia & Verificación\\
+\midrule
+Calibración & \Completar{archivo} & 0,5 m & \Completar{completo / repetir}\\
+SIS COM & \Completar{archivo} & 0,5 m & \Completar{reutilizado del problema 1}\\
+SIS COM & \Completar{archivo} & 1,0 m & \Completar{completo / repetir}\\
+SIS COM & \Completar{archivo} & 2,0 m & \Completar{completo / repetir}\\
+SIS COM & \Completar{archivo} & 3,0 m & \Completar{completo / repetir}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Prueba preliminar del clip HOLA}
+El video de ensayo descrito por el grupo contiene HOLA. Se puede procesar con la pestaña \textbf{Prueba rápida} para comprobar que el receptor localiza una fuente parpadeante y muestra texto, intensidad y espectro. Registre aquí el texto que efectivamente entregue el algoritmo, no una corrección manual:
+
+\begin{table}[H]
+\centering
+\caption{Resultado de la prueba rápida HOLA, independiente de las mediciones evaluadas.}
+\label{tab:hola}
+\begin{tabularx}{\textwidth}{p{0.35\textwidth}Y}
+\toprule
+Dato & Resultado medido o informado por la aplicación\\
+\midrule
+Texto esperado & HOLA\\
+Texto recibido automáticamente & \Completar{copiar literalmente, incluyendo espacios o vacío}\\
+ROI, umbral y \(T\) estimados & \Completar{valores de la interfaz}\\
+CER contra HOLA & \Completar{valor calculado por el programa}\\
+Diagnósticos o limitaciones & \Completar{pulsos ausentes, contraste bajo u otros}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Esta tabla es evidencia de una prueba de software, no una medición de SIS COM ni un reemplazo del video de calibración formal.
+
+\section{Problema 1: transmisión y reconstrucción}
+\subsection{Señal temporal de intensidad a 0,5 m}
+Después de escoger una ROI, se grafica \(I[n]\) en función del tiempo. El eje vertical se expresa en niveles digitales y el horizontal en segundos. Se anota el FPS que proviene del video. La forma temporal debe permitir distinguir los niveles luminoso y oscuro y ubicar los pulsos transmitidos.
+
+\EspacioFigura{1-3-senal-temporal}{Insertar la intensidad media de la ROI a 0,5 m versus tiempo. Indicar unidades digitales, segundos, FPS y ROI usada.}{senal_05m.png}{Señal temporal de intensidad para SIS COM a 0,5 m}{4.6cm}{Indique los niveles observados de luz encendida y apagada, el valor de \(f_s\), el intervalo usado y si los pulsos se distinguen.}
+
+\subsection{Calibración del umbral y de \texorpdfstring{$T$}{T}}
+A 0,5 m se estiman los niveles apagado y encendido y se elige un umbral \(\theta\) que los separe. El umbral no se cambia en las pruebas a otras distancias. Se registra \(T\), la tolerancia aplicada a duraciones y una muestra que permita comprobar las relaciones punto/raya y pausas. La calibración automática de Prueba rápida sirve para diagnóstico; en el flujo completo el grupo debe documentar y guardar la calibración acordada.
+
+\begin{table}[H]
+\centering
+\caption{Valores de calibración del receptor a 0,5 m.}
+\label{tab:calibration}
+\begin{tabularx}{\textwidth}{p{0.42\textwidth}Y}
+\toprule
+Magnitud & Valor y método\\
+\midrule
+Intensidad media apagada & \Completar{niveles digitales}\\
+Intensidad media encendida & \Completar{niveles digitales}\\
+Umbral \(\theta\) & \Completar{niveles digitales y criterio}\\
+Duración de punto \(T\) & \Completar{segundos}\\
+Tolerancia temporal & \Completar{fracción o porcentaje}\\
+FPS de referencia & \Completar{cuadros/s}\\
+ROI normalizada y tamaño en píxeles & \Completar{coordenadas y ancho por alto}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\EspacioFigura{1-4-calibracion}{Insertar un segmento ampliado de la calibración: punto, raya y pausas. Trazar el umbral y anotar las duraciones medidas y la clase asignada por el programa.}{calibracion_05m.png}{Muestra de calibración con umbral y decisiones Morse}{4.6cm}{Compare las duraciones medidas con \(T\), \(3T\) y las pausas esperadas; justifique el umbral y la tolerancia elegidos.}
+
+\subsection{Decisiones y texto reconstruido}
+La frase de referencia no corrige las decisiones. Deben conservarse las duraciones medidas, los símbolos reconocidos y cualquier patrón inválido. No se eliminan errores del texto para que la comparación posterior sea honesta.
+
+\begin{table}[H]
+\centering
+\caption{Muestra de decisiones del decodificador. Copie un tramo real de los resultados guardados.}
+\label{tab:decisions}
+\begin{tabularx}{\textwidth}{c c c c Y}
+\toprule
+N.\textsuperscript{o} & Inicio (s) & Duración (s) & Clase & Decisión / símbolo\\
+\midrule
+1 & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[punto, raya, pausa o inválido]}\\
+2 & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[decisión]}\\
+3 & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[decisión]}\\
+4 & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[decisión]}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\EspacioFigura{1-4-decisiones}{Opcionalmente, añadir una captura legible de la señal y del registro de decisiones. La figura complementa, pero no reemplaza, la tabla y el texto recibido.}{decisiones.png}{Ejemplo de decisiones temporales y reconstrucción automática}{4.2cm}{Explique cómo las duraciones del tramo se convierten en puntos/rayas, letras y separadores, y señale cualquier decisión inválida.}
+
+\begin{table}[H]
+\centering
+\caption{Comparación de la transmisión SIS COM a 0,5 m.}
+\label{tab:cer05}
+\begin{tabularx}{\textwidth}{p{0.25\textwidth}Y}
+\toprule
+Campo & Resultado\\
+\midrule
+Texto esperado, sin modificar & \texttt{SIS COM}\\
+Texto reconstruido automáticamente & \Completar{copiar literalmente}\\
+Sustituciones \(S\) & \Completar{entero}\\
+Eliminaciones \(D\) & \Completar{entero}\\
+Inserciones \(I\) & \Completar{entero}\\
+CER \(=(S+D+I)/7\) & \Completar{valor decimal y porcentaje}\\
+¿Se recuperaron las letras y el espacio? & \Completar{sí/no y evidencia}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Problema 2: análisis de señal y desempeño}
+\subsection{FFT a 0,5 m}
+Para la FFT se resta el promedio de la intensidad y se emplea el FPS del video como \(f_s\). El espectro unilateral se representa entre 0 y \(f_s/2\). En la interpretación se identifica dónde se concentra la energía espectral y se relaciona el resultado con la periodicidad de los pulsos y pausas. No se debe asignar a un pico una causa que no esté respaldada por la señal.
+
+\EspacioFigura{2-1-fft}{Insertar la FFT unilateral de la señal centrada a 0,5 m. Etiquetar frecuencia en Hz y amplitud; anotar \(f_s\) y la longitud de la señal analizada.}{fft_05m.png}{Espectro FFT unilateral a 0,5 m}{4.6cm}{Describa las frecuencias dominantes y vincúlelas con la repetición de pulsos observada; anote las limitaciones de resolución espectral.}
+
+\subsection{PSD y \texorpdfstring{$B_{95}$}{B95} a 0,5 m}
+Se calcula la PSD sobre la misma señal después de restar su media. Se informa el método y sus parámetros. Para el receptor implementado, la PSD utiliza Welch con ventana Hann; \(B_{95}\) se obtiene integrando el área bajo la PSD desde 0 hasta acumular el 95\,\% del área total hasta Nyquist.
+
+\begin{table}[H]
+\centering
+\caption{Parámetros del análisis espectral.}
+\label{tab:spectrum}
+\begin{tabularx}{\textwidth}{p{0.40\textwidth}Y}
+\toprule
+Parámetro & Registro\\
+\midrule
+Frecuencia de muestreo \(f_s\) & \Completar{cuadros/s}\\
+Número de cuadros analizados & \Completar{N}\\
+Método de PSD & Welch, ventana Hann; verificar el valor mostrado por la aplicación\\
+Longitud de segmento de Welch & \Completar{nperseg}\\
+Frecuencia de Nyquist \(f_s/2\) & \Completar{Hz}\\
+Ancho de banda \(B_{95}\) & \Completar{Hz, o informar que no se pudo estimar}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\EspacioFigura{2-2-psd}{Insertar PSD entre 0 y \(f_s/2\). Marcar la línea vertical en \(B_{95}\) y confirmar que se obtuvo integrando el 95\,\% del área.}{psd_b95_05m.png}{Densidad espectral de potencia y \(B_{95}\) a 0,5 m}{4.6cm}{Indique el método y ventana, interprete la distribución de potencia y explique qué representa el \(B_{95}\) medido.}
+
+\subsection{Tabla comparativa de las cuatro distancias}
+Se decodifican cuatro videos completos con el mismo algoritmo, umbral calibrado a 0,5 m, \(T\), tolerancia y regla de selección de ROI. La ROI se puede recentrar si la fuente se mueve dentro del encuadre, manteniendo su tamaño y criterio. No se reajusta el umbral para favorecer una lectura en particular. Cada texto se compara en mayúsculas contra \texttt{SIS COM}, manteniendo el espacio.
+
+\begin{table}[H]
+\centering
+\caption{Resultados de decodificación y CER según la distancia.}
+\label{tab:distancias}
+\small
+\begin{tabularx}{\textwidth}{p{0.13\textwidth} p{0.14\textwidth} p{0.12\textwidth} p{0.13\textwidth} Y}
+\toprule
+Distancia & Duración (s) & \(S/D/I\) & CER & Texto recibido automáticamente\\
+\midrule
+0,5 m & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[copiar la cadena recibida]}\\
+1,0 m & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[copiar la cadena recibida]}\\
+2,0 m & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[copiar la cadena recibida]}\\
+3,0 m & \DatoPendiente & \DatoPendiente & \DatoPendiente & \textcolor{Pending}{[copiar la cadena recibida]}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Si la adquisición fue completa y el receptor devolvió una cadena vacía, se informa la cadena vacía y CER \(=1\). Si el archivo quedó incompleto por falla de grabación, se conserva como falla, se marca \textit{sin adquisición válida} y no se calcula CER. Se debe conservar el registro de fallos junto con los videos y textos restantes.
+
+\subsection{CER en función de la distancia}
+El eje horizontal se expresa en metros y el vertical en CER. La gráfica utiliza los cuatro datos de la tabla \ref{tab:distancias}; no se fuerza una tendencia creciente. Una variación no monótona se comenta con referencia a la repetibilidad del ritmo, la exposición, el encuadre, la iluminación y la separación de intensidades.
+
+\clearpage
+\EspacioFigura{2-3-cer-distancia}{Insertar la gráfica distancia (m) versus CER. Usar los CER obtenidos con el mismo método y conservar cada distancia en la escala real.}{cer_distancia.png}{Tasa de error de caracteres en función de la distancia}{4.6cm}{Describa la tendencia observada sin forzarla; relacione cada cambio con el texto, la señal y las condiciones de captura.}
+
+\subsection{Comparación de señal a 0,5 m y 3,0 m}
+Se selecciona la misma parte del mensaje en ambos registros y se grafica con la misma escala vertical. Se dibuja el mismo umbral \(\theta\) calibrado a 0,5 m. La comparación debe permitir evaluar si los niveles de luz encendida y apagada siguen separados a 3,0 m y cómo esa separación coincide con los errores de la tabla.
+
+\EspacioFigura{2-4-comparacion}{Insertar dos segmentos alineados del mismo tramo de SIS COM, uno a 0,5 m y otro a 3,0 m. Usar la misma escala vertical, el umbral común y ejes de tiempo indicados.}{senal_05m_3m.png}{Comparación de intensidad para el mismo segmento a 0,5 m y 3,0 m}{4.8cm}{Compare el contraste y la separación respecto del umbral; conecte lo observado con la CER sin atribuir causalidad que no se midió.}
+
+\section{Discusión}
+Complete la discusión usando los datos, no únicamente una expectativa teórica.
+\begin{enumerate}
+    \item \textbf{Separación de niveles:} \Completar{comparar intensidades encendida/apagada, el umbral y el ruido de fondo en cada distancia}.
+    \item \textbf{Errores:} \Completar{relacionar las sustituciones, eliminaciones e inserciones con pulsos o pausas concretos}.
+    \item \textbf{Efecto de la distancia:} \Completar{describir la tendencia observada y explicar posibles variaciones no monótonas}.
+    \item \textbf{Dificultad principal:} \Completar{elegir una limitación demostrada por las grabaciones}.
+    \item \textbf{Mejora:} \Completar{proponer una acción y explicar por qué mejoraría la medición}.
+\end{enumerate}
+
+Si CER \(=0\) para las cuatro pruebas, se debe explicar que recibir correctamente esta frase demuestra funcionamiento bajo esas condiciones, pero no garantiza que una frase nueva, un ritmo diferente o condiciones distintas se decodifiquen sin error. La prueba de una palabra nueva durante la demostración comprueba que el receptor no depende de conocer SIS COM.
+
+\section{Conclusiones}
+Reemplace cada indicación por conclusiones respaldadas por los resultados:
+\begin{itemize}
+    \item \Completar{resumir si el sistema recuperó SIS COM y con qué CER}.
+    \item \Completar{resumir qué cambió en la intensidad recibida entre 0,5 m y 3,0 m}.
+    \item \Completar{indicar el valor de \(B_{95}\) y qué caracteriza en esta señal}.
+    \item \Completar{declarar la principal limitación y la mejora recomendada}.
+\end{itemize}
+No afirmar que el sistema cumple una condición si no se incluyó el video, la señal, el texto recibido o la tabla que permita comprobarlo.
+
+\section{Reproducibilidad y demostración}
+Para reproducir el procesamiento, conservar: (i) los videos originales de calibración y de cada distancia, (ii) el texto y patrón Morse transmitido, (iii) la ROI y configuración de calibración, (iv) decisiones de decodificación y textos reconstruidos, (v) tabla S/D/I/CER y análisis FFT/PSD/\(B_{95}\), (vi) código fuente, firmware y README. La exportación del programa organiza los archivos de resultados; el grupo debe verificar que el ZIP final contenga la evidencia requerida y preparar por separado el PDF del informe.
+
+Para la presentación, planificada en cinco minutos, reservar aproximadamente dos minutos para explicar el montaje y resultados y tres minutos para demostrar la transmisión y recepción. Mostrar SIS COM, la señal de cámara y el texto decodificado por el programa. Tener listo el video original por si ocurre una falla en vivo. Durante la prueba común se transmite además la palabra de cuatro letras que entregue el docente; no se incluye esa palabra en la CER de SIS COM.
+
+\begin{table}[H]
+\centering
+\caption{Lista de verificación previa a la entrega.}
+\label{tab:checklist}
+\begin{tabularx}{\textwidth}{c Y c}
+\toprule
+Estado & Evidencia & Revisado\\
+\midrule
+\Completar{sí/no} & Diagrama de bloques y foto del montaje & \Completar{sí/no}\\
+\Completar{sí/no} & Patrón SIS COM, control, \(T\), distancia, iluminación y FPS & \Completar{sí/no}\\
+\Completar{sí/no} & Calibración 0,5 m, ROI, niveles, umbral y tolerancia & \Completar{sí/no}\\
+\Completar{sí/no} & Señal temporal, FFT, PSD y \(B_{95}\) & \Completar{sí/no}\\
+\Completar{sí/no} & Cuatro videos SIS COM y tabla CER con espacios conservados & \Completar{sí/no}\\
+\Completar{sí/no} & Gráficas CER/distancia y comparación 0,5 m--3,0 m & \Completar{sí/no}\\
+\Completar{sí/no} & ZIP reproducible, README, nombres, aportes y declaración de IA & \Completar{sí/no}\\
+\Completar{sí/no} & Video de montaje de hasta 2 minutos y demostración en clase & \Completar{sí/no}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Declaración de apoyo de inteligencia artificial}
+Se utilizó ChatGPT (OpenAI) como apoyo para desarrollar el receptor de software y preparar la estructura inicial de este informe. La herramienta no aporta ni sustituye las mediciones experimentales. Los integrantes deben revisar el código, completar las decisiones de diseño, verificar las figuras y resultados y poder explicar individualmente el funcionamiento del transmisor y del receptor. Esta declaración debe ajustarse si se utilizó apoyo adicional o de otra forma.
+
+\begin{thebibliography}{9}
+\bibitem{Pauta}
+F. Castillo Rivera, \textit{Tarea N.\textsuperscript{o} 1: Transmisión y reconstrucción de mensajes Morse con luz}, Sistemas de Comunicaciones 2026, Universidad de Concepción, publicada el 8 de octubre de 2026.
+
+\bibitem{UIT}
+Unión Internacional de Telecomunicaciones, \textit{Recomendación UIT-R M.1677-1: Código Morse internacional}, 2009. Disponible en: \url{https://www.itu.int/rec/R-REC-M.1677-1-200910-I/es}.
+
+\bibitem{CER}
+Lightning AI, \textit{Character Error Rate}. Documentación de TorchMetrics. Disponible en: \url{https://lightning.ai/docs/torchmetrics/stable/text/char_error_rate.html}.
+
+\bibitem{OpenAI}
+OpenAI, \textit{ChatGPT}, herramienta de apoyo para programación y preparación del borrador, consulta realizada el 27 de octubre de 2026. Disponible en: \url{https://chatgpt.com/}.
+\end{thebibliography}
+
+\end{document}
