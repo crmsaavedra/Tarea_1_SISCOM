@@ -2,7 +2,7 @@
 
 Aplicación local de escritorio para organizar las grabaciones de una transmisión Morse óptica, calibrar el receptor, decodificar señales, analizar resultados y preparar un paquete reproducible.
 
-**Guía para abrir y usar el ejecutable:** [GUIA_USO_EXE.md](GUIA_USO_EXE.md). Descarga `SisCom Morse.exe` desde la sección **Releases** del repositorio.
+**Guía para abrir y usar el ejecutable:** [GUIA_USO_EXE.md](GUIA_USO_EXE.md). Descarga `SisCom-Morse.exe` desde la sección **Releases** del repositorio.
 
 ## Ejecutar la aplicación
 

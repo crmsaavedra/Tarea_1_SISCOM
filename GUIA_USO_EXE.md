@@ -2,7 +2,7 @@
 
 ## 1. Descargar y abrir la aplicación
 
-1. En GitHub, abre **Releases** y descarga `SisCom Morse.exe`.
+1. En GitHub, abre **Releases** y descarga `SisCom-Morse.exe`.
 2. Guarda el archivo en una carpeta de tu equipo, por ejemplo `Documentos\SisCom Morse`.
 3. En Windows 10/11 de 64 bits, haz doble clic en `SisCom Morse.exe`. Se abrirá la ventana **Laboratorio óptico Morse · Sistemas de Comunicaciones**.
 4. No necesitas instalar Python, abrir Arduino IDE, iniciar un servidor ni usar el navegador para trabajar en la aplicación.
