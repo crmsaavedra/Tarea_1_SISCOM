@@ -1,0 +1,15 @@
+# Python y pruebas
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.superpowers/
+
+# Salidas locales y ejecutables compilados (el EXE se publica como Release)
+build/
+dist/
+projects/
+
+# Entornos de desarrollo
+.idea/
+.vscode/
