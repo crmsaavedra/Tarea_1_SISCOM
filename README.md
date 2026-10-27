@@ -6,7 +6,7 @@ Aplicación local de escritorio para organizar las grabaciones de una transmisi�
 
 ## Informe de la tarea
 
-El informe editable en LaTeX y su PDF compilado están en [`informe_latex/`](informe_latex/). El documento explica el transmisor Arduino, el receptor Tkinter, la calibración, la decodificación Morse, la CER y el análisis FFT/PSD. Incluye espacios rotulados para las figuras y recuadros separados para escribir sus interpretaciones. Antes de entregarlo, hay que completar los campos naranjos con mediciones reales e insertar las figuras solicitadas; el clip preliminar HOLA no reemplaza las grabaciones SIS COM de las cuatro distancias.
+El informe editable en LaTeX y su PDF compilado están en [`informe_latex/`](informe_latex/). Además del sistema y el procedimiento, el marco teórico desarrolla el enlace OOK, la propagación óptica, el muestreo y exposición de la cámara, la ROI, el umbral, la tolerancia temporal y la interpretación de FFT, PSD y B95, con referencias técnicas. Incluye espacios rotulados para las figuras y recuadros separados para escribir sus interpretaciones. Antes de entregarlo, hay que completar los campos naranjos con mediciones reales e insertar las figuras solicitadas; el clip preliminar HOLA no reemplaza las grabaciones SIS COM de las cuatro distancias.
 
 ## Ejecutar la aplicación
 

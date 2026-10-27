@@ -144,7 +144,24 @@ El proyecto implementa un transmisor Arduino para los LED conectados a D2--D9 y 
 \subsection{Organización del informe}
 Las secciones 2 y 3 presentan la codificación, la arquitectura y el método de procesamiento. La sección 4 describe el montaje y el procedimiento experimental. La sección 5 sigue los ítems evaluados de los problemas 1 y 2. Las secciones finales reservan la discusión, las conclusiones, la reproducibilidad y la declaración de apoyo de inteligencia artificial.
 
-\section{Fundamentos y método de decodificación}
+\section{Marco teórico y método de decodificación}
+La transmisión convierte un mensaje discreto en una secuencia temporal de luz. La cámara no recibe directamente letras ni bits: registra imágenes, que el receptor transforma en muestras de intensidad. La decodificación depende, por tanto, de tres elementos relacionados: que el transmisor produzca duraciones distinguibles, que la cámara las muestree con suficiente resolución temporal y que el algoritmo separe correctamente los estados luminoso y oscuro.
+
+\subsection{Enlace óptico y modulación OOK}
+En una comunicación óptica de espacio libre, una fuente luminosa envía energía a través del entorno y una cámara actúa como detector. En esta tarea se utiliza modulación por encendido y apagado, denominada \textit{on-off keying} (OOK): el estado de luz encendida representa el nivel lógico 1 y el estado apagado representa el nivel lógico 0. Los puntos y rayas se forman cambiando la duración de los intervalos luminosos; las pausas oscuras separan los símbolos y las letras. La intensidad de los píxeles no es un voltaje digital transmitido, sino una medición del extremo receptor.
+
+Un modelo discreto simplificado para la media de intensidad de la ROI es
+\begin{equation}
+I[n] \approx \mu_{\mathrm{off}}(r)
+ + \Delta\mu(r)b[n] + \eta[n],
+\qquad
+\Delta\mu(r)=\mu_{\mathrm{on}}(r)-\mu_{\mathrm{off}}(r),
+\label{eq:modelo-ook}
+\end{equation}
+donde \(b[n]\in\{0,1\}\) es el estado OOK, \(r\) es la distancia, \(\mu_{\mathrm{off}}\) incluye el fondo captado con la fuente apagada, \(\Delta\mu\) es el contraste observado entre luz encendida y apagada, y \(\eta[n]\) agrupa variaciones y ruido. Este modelo es aproximado: la exposición, la respuesta de la cámara, el encuadre y la iluminación ambiental también influyen en los niveles registrados. Por eso, la intensidad digital de una cámara no debe presentarse como irradiancia calibrada.
+
+Para una fuente puntual isotrópica, la irradiancia ideal disminuye proporcionalmente a \(1/r^2\). Esa relación es una referencia física y solo se aplica bajo sus supuestos geométricos; un LED direccional, las reflexiones, la orientación, la óptica y la respuesta automática de la cámara pueden apartar la medición de ese modelo. En particular, no se debe ajustar una ley de inverso del cuadrado directamente a los valores grises de la ROI. La comparación experimental debe basarse en las señales y condiciones medidas \cite{NISTOptica}.
+
 \subsection{Código Morse y temporización}
 La letra se representa mediante puntos y rayas. Sea \(T\) la duración de referencia de un punto. La raya dura \(3T\); las pausas internas de una letra duran \(T\), las pausas entre letras \(3T\) y las pausas entre palabras \(7T\). Las pausas se miden completas: la separación entre letras es \(3T\), no \(T+3T\) \cite{Pauta,UIT}.
 
@@ -196,7 +213,18 @@ donde \(G_n(x,y)\) es la intensidad digital en escala de grises y \(N_{\mathrm{R
 \begin{equation}
 t[n]=\frac{n}{f_s},\qquad f_s=\text{FPS informado por el archivo de video}.
 \end{equation}
-La ROI debe cubrir la fuente luminosa sin incluir innecesariamente reflejos, pantallas u otras zonas que cambien de brillo.
+La ROI debe cubrir la fuente luminosa sin incluir innecesariamente reflejos, pantallas u otras zonas que cambien de brillo. El promedio espacial hace que cada cuadro aporte una sola muestra y puede reducir variaciones locales de píxel; sin embargo, si la ROI es demasiado grande, el fondo diluye la contribución del LED, y si es demasiado pequeña o queda desplazada, la fuente puede salir de ella. Por esto, al cambiar de distancia se permite recentrar la ROI con el mismo tamaño y criterio, dejando constancia de sus coordenadas.
+
+La cámara integra luz durante el tiempo de exposición de cada cuadro y luego entrega valores digitalizados. Si la fuente cambia de estado durante una exposición, el cuadro puede registrar un promedio de ambos estados y producir una transición intermedia. La frecuencia de cuadros y el tiempo de exposición son conceptos distintos; conviene fijar el tiempo de exposición y el enfoque, y desactivar los ajustes automáticos de exposición y ganancia cuando el equipo lo permite \cite{Bachhuber}. También debe comprobarse que el archivo use una cadencia constante: el procesador de este proyecto asigna tiempos uniformes \(t[n]=n/f_s\) a partir de los FPS del archivo y no corrige marcas temporales variables.
+
+La resolución temporal está limitada por el intervalo entre cuadros,
+\begin{equation}
+\Delta t=\frac{1}{f_s}, \qquad N_T=f_sT,
+\label{eq:muestras-unidad}
+\end{equation}
+donde \(N_T\) representa el número aproximado de cuadros que cubren una unidad Morse. Los comienzos y finales de los pulsos solo se observan en cuadros discretos, de modo que las duraciones quedan cuantizadas con una resolución del orden de \(1/f_s\). Si una unidad ocupa muy pocos cuadros, el error de uno o más cuadros puede cambiar la clasificación entre punto y raya o entre tipos de pausa.
+
+Para interpretar el espectro, la frecuencia de Nyquist es \(f_N=f_s/2\). El criterio de muestreo establece que, para representar sin aliasing una señal limitada a una frecuencia máxima de interés \(f_{\max}\), se requiere \(f_s>2f_{\max}\). El encendido y apagado ideal tiene bordes abruptos y no es estrictamente limitado en banda; en consecuencia, el video solo representa su versión muestreada y no puede recuperar componentes por encima de Nyquist. Una tasa de cuadros insuficiente puede omitir pulsos breves o hacer aparecer componentes espectrales aliasadas. El espectro del informe debe entenderse como el de la señal digital registrada, no como una medición completa de la forma óptica original \cite{NI,Bachhuber}.
 
 \subsection{Umbral, duraciones y decisiones}
 El receptor binariza la intensidad con un umbral \(\theta\):
@@ -207,7 +235,15 @@ b[n]=
 0,& I[n]<\theta.
 \end{cases}
 \end{equation}
+Cuando los niveles apagado y encendido se observan separados, \(\theta\) se elige dentro del intervalo entre ambos; el punto medio entre sus medias puede servir como valor inicial, pero debe verificarse contra la señal real. Si las distribuciones de intensidad se superponen, ningún umbral fijo separará perfectamente todos los cuadros. El contraste \(\Delta\mu\) de la ecuación \eqref{eq:modelo-ook} ayuda a describir esa separación: menor contraste respecto de las variaciones de fondo hace más frágil la decisión binaria. El umbral se obtiene durante la calibración a 0,5 m y se conserva para las otras distancias.
+
 Las rachas consecutivas con el mismo estado se convierten en intervalos de luz encendida o apagada. Si una racha abarca \(N\) cuadros, su duración es \(d=N/f_s\). La calibración define \(\theta\), \(T\), ROI y una tolerancia temporal antes de evaluar las distancias. Un pulso se clasifica como punto o raya comparando su duración con \(T\) y \(3T\); una pausa se clasifica como separación de símbolo, letra o palabra comparándola con \(T\), \(3T\) y \(7T\).
+
+La tolerancia se aplica como error relativo frente a cada duración teórica \(d_k\in\{T,3T,7T\}\):
+\begin{equation}
+e_k(d)=\frac{|d-d_k|}{d_k}.
+\end{equation}
+La implementación acepta las clases cuyo error relativo está dentro de la tolerancia calibrada y, si más de una clase coincide, conserva la de menor error relativo. Si ninguna coincide, registra el intervalo como inválido. Una tolerancia excesiva puede volver ambiguos los límites entre clases; una tolerancia demasiado estricta puede rechazar pulsos afectados por el muestreo o la exposición.
 
 Las decisiones de duración se traducen a una secuencia de puntos y rayas y luego a letras mediante una tabla Morse. Los patrones o intervalos que no satisfacen la regla se conservan como \texttt{?} o como decisión inválida. La frase de referencia no forma parte del algoritmo de decodificación: se aplica después, al contar los errores.
 
@@ -231,7 +267,11 @@ La aplicación calcula una FFT unilateral con frecuencias desde 0 hasta \(f_s/2\
 0.95\int_{0}^{f_s/2}P_{xx}(f)\,df.
 \label{eq:b95}
 \end{equation}
-\(B_{95}\) resume la extensión espectral de la señal registrada; no es directamente una velocidad de transmisión ni una medida de calidad por sí sola.
+Para una señal de \(N\) cuadros y duración \(\tau=N/f_s\), la separación entre bins de la FFT es \(\Delta f=f_s/N=1/\tau\). La aplicación centra la intensidad restando la media y calcula una FFT unilateral de amplitud. Al trabajar con un registro finito, el espectro depende del tramo elegido; una discontinuidad entre sus extremos puede repartir energía en bins vecinos. Por ello, se deben usar tramos claramente delimitados y mantener el mismo criterio al comparar registros.
+
+La PSD de Welch divide la señal en segmentos, aplica una ventana Hann a cada uno y promedia sus periodogramas. El promedio reduce la variabilidad visual de una estimación espectral única, mientras que segmentos más cortos suavizan más el espectro a costa de resolver menos las frecuencias cercanas. En esta aplicación \(n_{\mathrm{perseg}}=\min(N,256)\), ajustado a un entero par cuando corresponde; la implementación de SciPy usa por defecto un solapamiento de la mitad del segmento. La unidad de la PSD es nivel digital al cuadrado por hertz, pues la entrada son intensidades de gris, no voltajes calibrados \cite{SciPyWelch,SciPyFFT}.
+
+El ancho de banda \(B_{95}\) se obtiene integrando numéricamente la PSD unilateral hasta acumular el 95\,\% de su área total. Es una medida de cuánta extensión frecuencial contiene la señal muestreada bajo este procesamiento; no equivale por sí sola a la tasa de transmisión, al ancho de banda óptico del LED ni a la máxima distancia del enlace. Debe interpretarse junto con la tasa de cuadros, la duración del registro y la forma temporal observada.
 
 \section{Sistema desarrollado}
 \subsection{Diagrama funcional}
@@ -522,6 +562,21 @@ F. Castillo Rivera, \textit{Tarea N.\textsuperscript{o} 1: Transmisión y recons
 
 \bibitem{UIT}
 Unión Internacional de Telecomunicaciones, \textit{Recomendación UIT-R M.1677-1: Código Morse internacional}, 2009. Disponible en: \url{https://www.itu.int/rec/R-REC-M.1677-1-200910-I/es}.
+
+\bibitem{NISTOptica}
+F. E. Nicodemus, \textit{Self-study manual on optical radiation measurements: Part I -- Concepts, Chapters 4 and 5}, NBS Technical Note 910-2, 1978. Disponible en: \url{https://doi.org/10.6028/NBS.TN.910-2}.
+
+\bibitem{Bachhuber}
+C. Bachhuber, \textit{Low Delay Video Communication}, tesis doctoral, Technische Universität München, 2019, pp. 12--14. Disponible en: \url{https://mediatum.ub.tum.de/doc/1481082/document.pdf}.
+
+\bibitem{NI}
+National Instruments, \textit{Acquiring an Analog Signal: Bandwidth, Nyquist Sampling Theorem, and Aliasing}, actualización del 3 de septiembre de 2026. Disponible en: \url{https://www.ni.com/en/shop/data-acquisition/measurement-fundamentals/analog-fundamentals/acquiring-an-analog-signal--bandwidth--nyquist-sampling-theorem-.html}.
+
+\bibitem{SciPyWelch}
+SciPy Developers, \textit{scipy.signal.welch}, SciPy API Reference, versión 1.18.0. Disponible en: \url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.welch.html}.
+
+\bibitem{SciPyFFT}
+SciPy Developers, \textit{Discrete Fourier Transforms (scipy.fft)}, SciPy User Guide, versión 1.18.0. Disponible en: \url{https://docs.scipy.org/doc/scipy/tutorial/fft.html}.
 
 \bibitem{CER}
 Lightning AI, \textit{Character Error Rate}. Documentación de TorchMetrics. Disponible en: \url{https://lightning.ai/docs/torchmetrics/stable/text/char_error_rate.html}.

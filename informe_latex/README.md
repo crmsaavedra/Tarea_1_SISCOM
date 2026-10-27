@@ -4,6 +4,8 @@
 - `Informe_Tarea1_SISCOM.pdf`: PDF compilado y revisado.
 - `images/udec_.jpg`: logo tomado del formato de informe indicado por el grupo.
 
+El marco teórico desarrolla OOK y el canal óptico, el efecto de distancia y alineación, exposición y muestreo de la cámara, resolución temporal, aliasing, selección de ROI, umbral y tolerancia Morse, CER y lectura de FFT/PSD/\(B_{95}\). Sus referencias técnicas están citadas en el documento.
+
 ## Completar el borrador
 
 Los textos naranjos entre corchetes son campos que debe completar el grupo con sus datos. Los recuadros grises son espacios para las figuras; cada uno indica un nombre de archivo sugerido y va seguido por un recuadro de interpretación. Copie las figuras a esta carpeta con el nombre indicado y reemplace el recuadro correspondiente por `\includegraphics`.
